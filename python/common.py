@@ -6,7 +6,7 @@ SOCKET_NAME = b"rust-ipc-lib-test"
 
 system = platform.system()
 if system == "Linux":
-    lib_name = "libipc_bridge"
+    lib_name = "libipc_bridge.so"
 elif system == "Darwin":
     lib_name = "ipc_bridge.dylib"
 elif system == "Windows":
