@@ -1,15 +1,12 @@
 use crate::common::{from_c_str, make_name, to_c_string};
-use crate::state::{SERVER, SERVER_RUNNING, NEXT_ID, ServerState};
-use interprocess::local_socket::{
-    prelude::*, ListenerNonblockingMode, ListenerOptions,
-};
+use crate::state::{NEXT_ID, SERVER, SERVER_RUNNING, ServerState};
+use interprocess::local_socket::{ListenerNonblockingMode, ListenerOptions, prelude::*};
 use std::collections::HashMap;
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader, ErrorKind, Write};
 use std::os::raw::{c_char, c_int};
 use std::sync::atomic::Ordering;
 use std::thread;
 use std::time::Duration;
-
 /// 启动服务端
 /// 返回值：0 成功，-1 通用错误，-2 参数错误，-4 已在运行
 #[unsafe(no_mangle)]
@@ -117,15 +114,23 @@ pub extern "C" fn ipc_server_send(client_id: u64, data: *const c_char) -> c_int 
     };
 
     let line = format!("{}\n", msg);
-    match stream.write_all(line.as_bytes()).and_then(|_| stream.flush()) {
+    match stream
+        .write_all(line.as_bytes())
+        .and_then(|_| stream.flush())
+    {
         Ok(_) => 0,
         Err(_) => -1,
     }
 }
 
-/// 从指定客户端读取一行（阻塞）
-/// 
+/// 非阻塞读取一行
+///
 /// 返回的字符串必须用 [`ipc_free_string`]  释放
+///
+/// 返回值约定：
+/// - 有效指针：读到一行完整数据（需 ipc_free_string 释放）
+/// - null：暂时没数据（WouldBlock）或出错/断开
+///
 #[unsafe(no_mangle)]
 pub extern "C" fn ipc_server_recv(client_id: u64) -> *mut c_char {
     let mut guard = match SERVER.lock() {
@@ -143,14 +148,21 @@ pub extern "C" fn ipc_server_recv(client_id: u64) -> *mut c_char {
         None => return std::ptr::null_mut(),
     };
 
+    // 确保是非阻塞（防止漏设）
+    let _ = stream.set_nonblocking(true);
+
     let mut reader = BufReader::new(&*stream);
     let mut buffer = String::new();
+
     match reader.read_line(&mut buffer) {
-        Ok(0) | Err(_) => std::ptr::null_mut(),
-        Ok(_) => to_c_string(buffer.trim_end()),
+        Ok(0) => std::ptr::null_mut(),           // 连接关闭
+        Ok(_) => to_c_string(buffer.trim_end()), // 读到数据（n > 0）
+        Err(e) if e.kind() == ErrorKind::WouldBlock => {
+            std::ptr::null_mut() // 暂时没数据
+        }
+        Err(_) => std::ptr::null_mut(), // 其他错误
     }
 }
-
 /// 当前已连接客户端数量
 #[unsafe(no_mangle)]
 pub extern "C" fn ipc_server_client_count() -> u64 {
