@@ -12,3 +12,4 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 interprocess = "2.4"
 once_cell = "1.19"
+encoding_rs = "0.8"

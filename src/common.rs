@@ -3,7 +3,7 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 /// 把 Rust 字符串转成 C 字符串
-/// 
+///
 /// 返回的字符串必须用 [`ipc_free_string`]  释放
 pub fn to_c_string(s: &str) -> *mut c_char {
     CString::new(s)
@@ -16,10 +16,21 @@ pub fn from_c_str(ptr: *const c_char) -> Option<String> {
     if ptr.is_null() {
         return None;
     }
-    unsafe { CStr::from_ptr(ptr) }
-        .to_str()
-        .ok()
-        .map(|s| s.to_owned())
+    match unsafe { CStr::from_ptr(ptr) }.to_str() {
+        Ok(s) => Some(s.to_owned()),
+        Err(e) => unsafe {
+            // 如果不能正常解码，尝试gbk解码
+            let str = CStr::from_ptr(ptr);
+            let received_bytes = str.to_bytes();
+            let (gbk_decoded, _, had_errors) = encoding_rs::GBK.decode(received_bytes);
+            if !had_errors {
+                let corrected_string = gbk_decoded.to_string();
+                return Some(corrected_string);
+            }
+            println!("Error encoder error : {:?}", e);
+            None
+        },
+    }
 }
 
 /// 生成跨平台的 local socket 名称
