@@ -1,15 +1,12 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import ctypes
 import time
 import sys
 import os
+from common import dll_path, SOCKET_NAME
 
 # ===================== 加载 DLL =====================
-dll_path = os.path.join(os.path.dirname(__file__), "..",
-                        "target", "release", "ipc_bridge.dll")
-
 
 try:
     lib = ctypes.CDLL(dll_path)
@@ -37,7 +34,6 @@ lib.ipc_free_string.argtypes = [ctypes.c_void_p]
 lib.ipc_free_string.restype = None
 
 # ===================== 主逻辑 =====================
-SOCKET_NAME = b"rust-ipc-lib-test"
 
 print("[Python Server] 正在启动服务端...")
 ret = lib.ipc_server_start(SOCKET_NAME)
