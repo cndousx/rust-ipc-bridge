@@ -1,0 +1,2 @@
+[target.'cfg(target_env = "msvc")']
+rustflags = ["-A", "linker_messages"] # 禁用 msvc linker_messages
