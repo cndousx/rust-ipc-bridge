@@ -70,7 +70,7 @@ try:
         else:
             print("[Python Client] 未收到回复\n")
 
-        time.sleep(0.5)
+        time.sleep(3)
 
 except KeyboardInterrupt:
     print("\n[Python Client] 用户中断")
