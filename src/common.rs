@@ -1,6 +1,39 @@
 use interprocess::local_socket::{GenericNamespaced, Name, ToNsName};
 use std::ffi::{CStr, CString};
+use std::io::{self, Write};
 use std::os::raw::c_char;
+
+/// 写入一帧：4 字节小端长度 + payload
+pub fn write_frame(stream: &mut impl Write, data: &[u8]) -> io::Result<()> {
+    let len = (data.len() as u32).to_le_bytes();
+    stream.write_all(&len)?;
+    stream.write_all(data)?;
+    stream.flush()?;
+    Ok(())
+}
+
+/// 从 recv_buf 里尝试拆出一帧。
+/// 
+/// 数据不够时返回 None，不消费缓冲区。
+pub fn try_pop_frame(buf: &mut Vec<u8>) -> Option<Vec<u8>> {
+    if buf.len() < 4 {
+        return None;
+    }
+    let len = u32::from_le_bytes(buf[0..4].try_into().unwrap()) as usize;
+
+    // 简单保护：单帧最大 16MB，防止异常长度
+    if len > 16 * 1024 * 1024 {
+        buf.clear();
+        return None;
+    }
+
+    if buf.len() < 4 + len {
+        return None; // 半包
+    }
+
+    buf.drain(..4);
+    Some(buf.drain(..len).collect())
+}
 
 /// 把 Rust 字符串转成 C 字符串
 ///

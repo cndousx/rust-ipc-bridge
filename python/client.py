@@ -43,6 +43,9 @@ print(f"[Python Client] 连接成功，handle = {handle}\n")
 
 messages = [
     "Hello from Python Client!",
+    """
+    换行
+    测试""",
     "这是第二条消息",
     "Rust IPC DLL 测试",
     "再见",
@@ -56,7 +59,7 @@ try:
             print(f"[Python Client] 发送失败，错误码: {ret}")
             break
 
-        # 接收回复
+        # 非阻塞读取
         ptr = lib.ipc_client_recv(handle)
         if ptr:
             response = ctypes.cast(ptr, ctypes.c_char_p).value
@@ -64,8 +67,6 @@ try:
                 print(
                     f"[Python Client] 收到回复: {response.decode('utf-8', errors='ignore')}\n")
             lib.ipc_free_string(ptr)
-        else:
-            print("[Python Client] 未收到回复\n")
 
         time.sleep(3)
 
