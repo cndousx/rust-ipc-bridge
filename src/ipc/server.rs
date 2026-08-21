@@ -1,5 +1,5 @@
-use crate::common::{from_c_str, make_name, to_c_string, try_pop_frame, write_frame};
-use crate::state::{ClientConn, NEXT_ID, SERVER, SERVER_RUNNING, ServerState};
+use crate::ipc::common::{from_c_str, make_name, to_c_string, try_pop_frame, write_frame};
+use crate::ipc::state::{ClientConn, NEXT_ID, SERVER, SERVER_RUNNING, ServerState};
 use interprocess::local_socket::{ListenerNonblockingMode, ListenerOptions, prelude::*};
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read};
