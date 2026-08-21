@@ -1,5 +1,7 @@
-use crate::ipc::common::{from_c_str, make_name, to_c_string, try_pop_frame, write_frame};
+use crate::ipc::frame::{try_pop_frame, write_frame};
+use crate::ipc::ns::make_name;
 use crate::ipc::state::{CLIENTS, ClientConn, NEXT_ID};
+use crate::util::{from_c_str, to_c_string};
 use interprocess::local_socket::{Stream, prelude::*};
 use std::io::{ErrorKind, Read};
 use std::os::raw::{c_char, c_int};

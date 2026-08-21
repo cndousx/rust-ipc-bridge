@@ -1,5 +1,7 @@
-use crate::ipc::common::{from_c_str, make_name, to_c_string, try_pop_frame, write_frame};
+use crate::ipc::frame::{try_pop_frame, write_frame};
+use crate::ipc::ns::make_name;
 use crate::ipc::state::{ClientConn, NEXT_ID, SERVER, SERVER_RUNNING, ServerState};
+use crate::util::{from_c_str, to_c_string};
 use interprocess::local_socket::{ListenerNonblockingMode, ListenerOptions, prelude::*};
 use std::collections::HashMap;
 use std::io::{ErrorKind, Read};
@@ -132,7 +134,7 @@ pub extern "C" fn ipc_server_send(client_id: u64, data: *const c_char) -> c_int 
 }
 
 /// 非阻塞接收一帧
-/// 
+///
 /// - 非 null：完整消息，需 ipc_free_string 释放
 /// - null：半包 / 暂无数据 / 连接不存在 / 出错
 #[unsafe(no_mangle)]
