@@ -25,9 +25,9 @@ def client():
         """
         换行
         测试""",
-        "这是第二条消息",
+        "                   ",
         "Rust IPC DLL 测试",
-        "再见",
+        "再见 server"
     ]
 
     try:

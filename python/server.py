@@ -3,13 +3,13 @@
 import ctypes
 import time
 import sys
-import os
+import threading
 from ipc import loadLib, SOCKET_NAME
 
 
 # ===================== server 主逻辑 =====================
 
-def server():
+def server(stop_event):
     print("[Python Server] 正在启动服务端...")
     lib = loadLib()
     ret = lib.ipc_server_start(SOCKET_NAME)
@@ -22,7 +22,7 @@ def server():
 
     try:
         last_count = 0
-        while True:
+        while not stop_event.is_set():
             count = lib.ipc_server_client_count()
             if count != last_count:
                 print(f"[Python Server] 当前客户端数量: {count}")
@@ -38,8 +38,7 @@ def server():
                         if msg:
                             msg = msg.decode("utf-8", errors="ignore")
                             print(
-                                f"[Python Server] 收到来自客户端 {client_id} 的消息: {msg}")
-
+                                f"[Python Server] 收到来自客户端[{client_id}]的消息: {msg}")
                             # 回复
                             reply = f"Echo from Python Server: {msg}".encode(
                                 "utf-8")
@@ -47,13 +46,17 @@ def server():
                         lib.ipc_free_string(ptr)
 
             time.sleep(0.3)
-
+            if stop_event.wait(timeout=1.0):
+                print("\n[Python Server] 收到停止信号，清理资源后退出")
+                print("[Python Server] 正在停止服务端...")
+                lib.ipc_server_stop()
+                print("[Python Server] 已退出")
+                break
     except KeyboardInterrupt:
         print("\n[Python Server] 正在停止服务端...")
         lib.ipc_server_stop()
-        print("[Python Server] 已退出")\
-
+        print("[Python Server] 已退出")
 
 
 if __name__ == "__main__":
-    server()
+    server(stop_event=threading.Event())
