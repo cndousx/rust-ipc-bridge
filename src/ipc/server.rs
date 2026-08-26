@@ -1,6 +1,6 @@
 use crate::ipc::frame::{try_pop_frame, write_frame};
 use crate::ipc::ns::make_name;
-use crate::ipc::state::{ClientConn, NEXT_ID, SERVER, SERVER_RUNNING, ServerState};
+use crate::ipc::state::{ClientConn, SERVER, SERVER_NEXT_ID, SERVER_RUNNING, ServerState};
 use crate::util::{from_c_str, to_c_string};
 use interprocess::local_socket::{ListenerNonblockingMode, ListenerOptions, prelude::*};
 use std::collections::HashMap;
@@ -50,7 +50,7 @@ pub extern "C" fn ipc_server_start(name: *const c_char) -> c_int {
                         continue;
                     }
 
-                    let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
+                    let id = SERVER_NEXT_ID.fetch_add(1, Ordering::SeqCst);
                     if let Ok(mut guard) = SERVER.lock() {
                         if let Some(state) = guard.as_mut() {
                             state.clients.insert(

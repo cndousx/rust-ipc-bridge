@@ -1,6 +1,6 @@
 use crate::ipc::frame::{try_pop_frame, write_frame};
 use crate::ipc::ns::make_name;
-use crate::ipc::state::{CLIENTS, ClientConn, NEXT_ID};
+use crate::ipc::state::{CLIENTS, ClientConn, CLIENT_NEXT_ID};
 use crate::util::{from_c_str, to_c_string};
 use interprocess::local_socket::{Stream, prelude::*};
 use std::io::{ErrorKind, Read};
@@ -30,7 +30,7 @@ pub extern "C" fn ipc_client_connect(name: *const c_char) -> u64 {
         return 0;
     }
 
-    let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
+    let id = CLIENT_NEXT_ID.fetch_add(1, Ordering::SeqCst);
     if let Ok(mut map) = CLIENTS.lock() {
         map.insert(
             id,

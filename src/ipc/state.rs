@@ -5,7 +5,8 @@ use std::sync::Mutex;
 use std::sync::atomic::{AtomicBool, AtomicU64};
 use std::thread::JoinHandle;
 
-pub static NEXT_ID: AtomicU64 = AtomicU64::new(1);
+pub static SERVER_NEXT_ID: AtomicU64 = AtomicU64::new(1);
+pub static CLIENT_NEXT_ID: AtomicU64 = AtomicU64::new(1);
 pub static SERVER_RUNNING: AtomicBool = AtomicBool::new(false);
 
 pub struct ClientConn {
