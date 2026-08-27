@@ -4,7 +4,8 @@
 
 1. 编译生成动态链接库`cargo build --release`
 
-2. 测试脚本里使用的是相对路径，要`cd`到`python`文件夹执行测试脚本
+2. 测试脚本里使用的是相对路径，要`cd`到`python`文件夹执行测试脚本:`uv run same_process.py`
+
 
 ## 长度前缀协议示意
 
