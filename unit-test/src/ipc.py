@@ -1,5 +1,4 @@
 import ctypes
-import os
 import platform
 import sys
 from pathlib import Path
@@ -20,8 +19,8 @@ def load_lib():
         sys.exit(1)
 
     # 基于当前脚本文件所在目录
-    parent_dir = Path(__file__).resolve().parent.parent.parent
-    dll_path = os.path.join(parent_dir, "target", "release", lib_name)
+    curr_dir = Path(__file__).resolve()
+    dll_path = curr_dir.parent.parent.parent / "target" / "release" / lib_name
     print(f'dll path: {dll_path}')
     try:
         lib = ctypes.CDLL(dll_path)
