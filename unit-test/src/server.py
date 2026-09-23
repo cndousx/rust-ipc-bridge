@@ -5,14 +5,14 @@ import sys
 import threading
 import time
 
-from ipc import loadLib, SOCKET_NAME
+from ipc import load_lib, SOCKET_NAME
 
 
 # ===================== server 主逻辑 =====================
 
 def server(stop_event):
     print("[Python Server] 正在启动服务端...")
-    lib = loadLib()
+    lib = load_lib()
     ret = lib.ipc_server_start(SOCKET_NAME)
     if ret != 0:
         print(f"[Python Server] 启动失败，错误码: {ret}")

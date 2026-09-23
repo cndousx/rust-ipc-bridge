@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import ctypes
-import time
 import sys
-import os
-from ipc import loadLib, SOCKET_NAME
+import time
+
+from ipc import load_lib, SOCKET_NAME
 
 
 def client():
-    lib = loadLib()
+    lib = load_lib()
     # ===================== 主逻辑 =====================
 
     print("[Python Client] 正在连接服务端...")

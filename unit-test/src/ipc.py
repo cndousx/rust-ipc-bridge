@@ -1,13 +1,13 @@
-import os
-import sys
-import platform
 import ctypes
+import os
+import platform
+import sys
 from pathlib import Path
 
 SOCKET_NAME = b"rust-ipc-lib-test"
 
 
-def loadLib():
+def load_lib():
     system = platform.system()
     if system == "Linux":
         lib_name = "libipc_bridge.so"
