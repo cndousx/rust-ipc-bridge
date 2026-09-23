@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import ctypes
-import time
 import sys
 import threading
+import time
+
 from ipc import loadLib, SOCKET_NAME
 
 

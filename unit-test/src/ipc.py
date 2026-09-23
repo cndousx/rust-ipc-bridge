@@ -2,6 +2,8 @@ import os
 import sys
 import platform
 import ctypes
+from pathlib import Path
+
 SOCKET_NAME = b"rust-ipc-lib-test"
 
 
@@ -17,9 +19,10 @@ def loadLib():
         print(f"不支持的平台: {system}")
         sys.exit(1)
 
-    dll_path = os.path.join(os.path.dirname(__file__), "..",
-                            "target", "release", lib_name)
-
+    # 基于当前脚本文件所在目录
+    parent_dir = Path(__file__).resolve().parent.parent.parent
+    dll_path = os.path.join(parent_dir, "target", "release", lib_name)
+    print(f'dll path: {dll_path}')
     try:
         lib = ctypes.CDLL(dll_path)
         # ===================== server 函数签名 =====================

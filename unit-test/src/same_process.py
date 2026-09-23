@@ -1,14 +1,12 @@
+import sys
 import threading
 import time
-import time
-import sys
-from ipc import SOCKET_NAME
+
 from client import client
 from server import server
 
 
 def main():
-
     stop_event = threading.Event()
     # 创建并启动线程
     t1 = threading.Thread(target=server, args=(stop_event,))
